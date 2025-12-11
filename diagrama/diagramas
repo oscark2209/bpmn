@@ -1,0 +1,151 @@
+graph TD
+    Start((Inicio:<br/>Cliente solicita<br/>envío))
+    
+    subgraph "CLIENTE"
+        A[Cliente proporciona<br/>datos del paquete]
+        B{Tipo de<br/>servicio}
+        C[Pago servicio<br/>URGENTE]
+        D[Pago servicio<br/>ESTÁNDAR]
+        E[Pago servicio<br/>ECONÓMICO]
+        L1[Recibe notificación:<br/>En proceso]
+        L2[Recibe notificación:<br/>En tránsito]
+        L3[Recibe notificación:<br/>En reparto]
+        K{¿Cliente<br/>disponible?}
+        M[Cliente recibe<br/>paquete y firma]
+        N[Cliente elige<br/>entrega alternativa]
+    end
+    
+    subgraph "RECEPCIÓN Y VALIDACIÓN"
+        F[Verificar dimensiones,<br/>peso y contenido]
+        G{¿Cumple<br/>normas?}
+        H[Generar guía<br/>con código QR]
+        I[Fotografiar<br/>paquete]
+        J[Registrar en<br/>sistema de rastreo]
+        Z1[Rechazar y<br/>notificar motivo]
+    end
+    
+    subgraph "ALMACÉN ORIGEN"
+        O[Escanear código<br/>de entrada]
+        P{Tipo de<br/>servicio}
+        Q[Zona URGENTE<br/>prioridad 1]
+        R[Zona ESTÁNDAR<br/>prioridad 2]
+        S[Zona ECONÓMICA<br/>prioridad 3]
+        T[Consolidar carga<br/>por destino]
+    end
+    
+    subgraph "TRANSPORTE"
+        U{¿Destino<br/>local?}
+        V[Envío directo<br/>a reparto]
+        W[Envío a centro<br/>de distribución]
+        X[Transporte<br/>intermedio]
+        Y{¿Paquete<br/>en buen<br/>estado?}
+        Z2[Reportar<br/>incidencia]
+        AA[Notificar a<br/>cliente]
+    end
+    
+    subgraph "CENTRO DE DISTRIBUCIÓN"
+        AB[Recepción y<br/>escaneo]
+        AC[Clasificación<br/>automática]
+        AD[Asignación a<br/>ruta de entrega]
+    end
+    
+    subgraph "REPARTIDOR"
+        AE[Cargar paquetes<br/>del día]
+        AF[Optimizar ruta<br/>GPS]
+        AG[Actualizar estado:<br/>En camino]
+        AH[Llegar a<br/>dirección]
+        AI{¿Dirección<br/>correcta?}
+        AJ[Intentar<br/>entrega]
+        AK{¿Entrega<br/>exitosa?}
+        AL[Capturar foto<br/>de entrega]
+        AM[Dejar aviso<br/>de visita]
+        AN{Opciones}
+        AO[Programar<br/>reintento]
+        AP[Entregar a<br/>vecino autorizado]
+        AQ[Dejar en<br/>sucursal]
+        AR{¿Máximo<br/>reintentos?}
+        AS[Reportar dirección<br/>incorrecta]
+    end
+    
+    subgraph "NOTIFICACIONES AUTOMÁTICAS"
+        BA[Enviar SMS/<br/>Email/App]
+        BB[Actualizar<br/>tracking online]
+        BC[Generar alerta<br/>de retraso]
+    end
+    
+    End1((Fin:<br/>Entrega<br/>exitosa))
+    End2((Fin:<br/>Rechazado))
+    End3((Fin:<br/>Devolver<br/>a origen))
+    End4((Fin:<br/>En sucursal))
+    
+    Start --> A
+    A --> B
+    B -->|Urgente<br/>24h| C
+    B -->|Estándar<br/>2-3 días| D
+    B -->|Económico<br/>5-7 días| E
+    C --> F
+    D --> F
+    E --> F
+    F --> G
+    G -->|NO| Z1
+    Z1 --> End2
+    G -->|SÍ| H
+    H --> I
+    I --> J
+    J --> L1
+    J --> O
+    L1 --> BA
+    
+    O --> P
+    P -->|Urgente| Q
+    P -->|Estándar| R
+    P -->|Económico| S
+    Q --> T
+    R --> T
+    S --> T
+    T --> U
+    T --> L2
+    L2 --> BA
+    
+    U -->|SÍ| V
+    U -->|NO| W
+    W --> X
+    X --> Y
+    Y -->|NO| Z2
+    Z2 --> AA
+    AA --> BC
+    Y -->|SÍ| AB
+    V --> AB
+    
+    AB --> AC
+    AC --> AD
+    AD --> AE
+    AD --> L3
+    L3 --> BA
+    
+    AE --> AF
+    AF --> AG
+    AG --> AH
+    AG --> BB
+    AH --> AI
+    AI -->|NO| AS
+    AS --> AA
+    AI -->|SÍ| AJ
+    AJ --> K
+    K -->|SÍ| M
+    K -->|NO| AM
+    M --> AL
+    AL --> BA
+    AL --> End1
+    AM --> AN
+    AN -->|Reintento| AO
+    AN -->|Vecino| AP
+    AN -->|Sucursal| AQ
+    AO --> AR
+    AR -->|NO| AJ
+    AR -->|SÍ| End3
+    AP --> AL
+    AQ --> End4
+    
+    BA --> BB
+    BC --> BA
